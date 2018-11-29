@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
+import NameForm from './NameForm.js'
 
 class App extends Component {
 	state = {
@@ -20,23 +21,41 @@ class App extends Component {
 		}
 		return body;
 	};
+	post = async (url,data) => {
+		let xhr = new XMLHttpRequest();
+		xhr.open('post', url);
+		xhr.setRequestHeader('Content-type', 'application/json');
+		xhr.responseType = 'json';
+		xhr.addEventListener('load', () => {
+			if (xhr.status === 200) {
+				console.log('success: %s',JSON.stringify(this.xhr.response));
+				return this.xhr.response;
+			} else {
+				console.log('error');
+			}
+		});
+		console.log('going to send %s to %s',JSON.stringify(data),url);
+		await xhr.send(JSON.stringify(data));
+	}
+	onSubmit = (val) => {
+		console.log('name submitted 1: %s',val);
+		fetch('/save_message',{
+				method: 'POST',
+				body:JSON.stringify({
+					message:val,
+				}),
+				headers: {"Content-Type": "application/json"},
+		})
+			.then(res => console.log('success: %s',JSON.stringify(res)))
+			.catch(err => console.log(err));
+	}
   render() {
     return (
       <div className="App">
         <header className="App-header">
           <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-					{/*<a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>*/}
 					<p className="App-intro">{this.state.data}</p>
+					<NameForm onSubmit={this.onSubmit}/>
         </header>
       </div>
     );
